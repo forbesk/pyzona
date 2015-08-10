@@ -1,0 +1,29 @@
+{
+  "host ip": "192.168.1.2",
+  "target": "sim",
+  "logging": {
+    "folder": "/home/auvua/log",
+    "extension": "log",
+    "format": "%(asctime)s [%(levelname)s] [%(processName)s] :: %(message)s"
+  },
+  "model": {
+    "port": 5000,
+    "loop period": 0.02
+  },
+  "sim": {
+    "port": 5001,
+    "loop period": 0.02
+  },
+  "robot": {
+    "port": 5001,
+    "loop period": 0.02
+  },
+  "agent": {
+    "port": 5002,
+    "loop period": 0.02
+  },
+  "vision": {
+    "port": 5003,
+    "loop period": 0.05
+  }
+}
