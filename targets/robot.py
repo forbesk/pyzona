@@ -3,8 +3,9 @@ import logging
 from utils.process.SimpleProcess import SimpleProcess
 
 class Robot(SimpleProcess):
-    def __init__(self, update_period):
+    def __init__(self, update_period, model):
         SimpleProcess.__init__(self, update_period)
+        self.model = model
         self.name = "Robot"
 
     def setup(self):

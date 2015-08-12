@@ -2,8 +2,9 @@ import logging
 from utils.process.SimpleProcess import SimpleProcess
 
 class Agent(SimpleProcess):
-    def __init__(self, update_period):
+    def __init__(self, update_period, model):
         SimpleProcess.__init__(self, update_period)
+        self.model = model
         self.name = "Agent"
 
     def setup(self):

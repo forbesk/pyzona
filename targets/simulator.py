@@ -4,8 +4,9 @@ from multiprocessing import Process
 from utils.process.SimpleProcess import SimpleProcess
 
 class Simulator(SimpleProcess):
-    def __init__(self, update_period):
+    def __init__(self, update_period, model):
         SimpleProcess.__init__(self, update_period)
+        self.model = model
         self.name = "Simulator"
 
     def setup(self):
