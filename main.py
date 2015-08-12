@@ -1,9 +1,10 @@
 import sys
 import os
 import logging
-from multiprocessing import Process, Manager
 import json
 import time
+from multiprocessing import Process, Manager
+from server.server import Server
 from targets.robot import Robot
 from targets.simulator import Simulator
 from model.model import Model
@@ -15,30 +16,35 @@ greeting = """
    / /\ \| |  | | \ \/ / | |  | |/ /\ \\
   / ____ \ |__| |  \  /  | |__| / ____ \\
  /_/    \_\____/    \/    \____/_/    \_\\
-Autonomous Underwater Vehicle
+ Autonomous Underwater Vehicle
                     University of Arizona
 
 """
 
 classes = {'model': Model,
+           'server': Server,
            'agent': Agent,
            'robot': Robot,
            'sim': Simulator }
 
 
-def start_process(process):
+def start_process(process, model):
     logging.info("Starting " + process)
     if process not in processes:
-        processes[process] = classes[process](config[process]['loop period'])
+        processes[process] = classes[process](config[process]['loop period'],
+                                                model)
         processes[process].start()
     else:
         logging.warn("Process '" + process + "' is already running")
+    while not processes[process].ready:
+        time.sleep(0.01)
 
 def kill_all_processes():
     for key,value in processes.iteritems():
         logging.info("Stopping process '" + value.name + "'")
         value.join()
         processes[key] = None
+
 
 if __name__=='__main__':
     config = ""
@@ -53,6 +59,9 @@ if __name__=='__main__':
         print "Configuration file not found, exiting"
         exit(-1)
     config = json.loads(config)
+
+    model = manager.dict()
+    model['config'] = config
 
     logformat = config['logging']['format']
     filelogger = logging.FileHandler('{0}/{1}.{2}'.format(
@@ -71,34 +80,19 @@ if __name__=='__main__':
     logging.info("Configuration loaded")
     logging.info("Logging to " + filelogger.baseFilename)
 
-    logging.info("Loading model")
-    model = manager.dict()
-    model['config'] = config
-    start_process('model')
-    while not processes['model'].ready:
-        time.sleep(0.01)
-    model = processes['model'].model
-    logging.info("Model created")
+    start_process('model', model)
+    start_process('server', model)
 
-    time.sleep(0.25)
-
-    logging.info("Loading targets")
-    if config['target'] == 'robot':
-        start_process('robot')
-    elif config['target'] == 'sim':
-        start_process('sim')
+    if config['target'] == 'robot' or config['target'] == 'sim':
+        start_process(config['target'], model)
     else:
         logging.warn("Target ('robot'/'sim') not found")
 
-    time.sleep(0.25)
-
     logging.info("Loading agent")
-    start_process('agent')
-    while not processes['agent'].ready:
-        time.sleep(0.01)
+    start_process('agent', model)
     logging.info("Agent created")
 
-    logging.info("Sleeping for 5 seconds...")
-    time.sleep(5.0)
+    logging.info("Sleeping for 60 seconds...")
+    time.sleep(60.0)
 
     kill_all_processes()
