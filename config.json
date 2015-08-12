@@ -6,6 +6,12 @@
     "extension": "log",
     "format": "%(asctime)s [%(levelname)s] [%(processName)s] :: %(message)s"
   },
+  "server": {
+    "address": "127.0.0.1",
+    "port": 8080,
+    "relative_dir": "server/www",
+    "loop period": 0.1
+  },
   "model": {
     "port": 5000,
     "loop period": 0.02
